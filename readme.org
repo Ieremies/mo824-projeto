@@ -1,0 +1,130 @@
+#+Title: Projeto MC859
+#+Author: Ieremies Romero
+
+* Proposta inicial
+# Qual o problema
+# Modelo, contexto da literatura e o mapa metodológico (formulação, heurísticas, relaxações)
+# Vídeo de 15minutos no yt
+# Duas semanas
+** Descrição do problema
+Proposto por: [[cite:&stewart99_roman]]
+
+Função de dominação romana:
+f: V -> {0,1,2}
+para cada f(v) = 0, deve haver um f(v' \in N_v) = 2.
+
+Colocado de outra forma, uma função de dominação romana é uma coloração de vértices do grafo com as cores {0,1,2} tal que todo vértice colorido de 0 deve ter ao menos um vértice colorido {2} como vizinho.
+
+Estudo geral: [[cite:&cockayne04_roman]]
+** Estado-da-arte
+[[cite:&ivanovic16_improved]]
+
+Ambas formulações usam duas variáveis para representar a quantidade de legiões.
+
+Formulação RR:
+x_i significa que há ao menos uma legião enquanto y_i representa a segunda legião.
+- 3.2 -> define que todo território deve ser coberto.
+- 3.3 -> relação de x e y.
+- 3.4 -> binárias
+
+Improved RR: ele permite que as variáveis x_i sejam reais.
+Totalizando: |V| variáveis binárias, |V| reais e 2|V| restrições.
+
+Formulação BVV:
+x_i significa que há uma legião enquanto y_i significa que há duas legiões
+- 3.6 -> define que todo território deve ser coberto.
+- 3.7 -> determina que apenas um de x e y pode ser 1.
+- 3.8 -> binária
+
+Improved BVV (1): 3.7 pode ser removida
+Improved BVV (2): permite que as variáveis x_i sejam reais
+Totalizando: |V| variáveis binárias, |V| reais e |V| restrições
+
+** Posposta
+*Algum limite superior utilizando uma relaxação lagrangiana ou linear?*
+
+Talvez um algoritmo exato mais simples fosse elencar os vértices por grau e percorrer essa lista. Se ele tiver mais de dois ou mais vértices vizinhos desprotegidos, ele entra pra lista de 2, caso contrário ele vai pra lista de 1. Uma vez que qualquer vértice é coberto, ele sai da lista.
+
+*Algum limite inferior utilizando algum método exato ou meta-heurística como GRASP?*
+
+GRASP pode vir de forma natural com a escolha de nós para comporem a lista de 2. Todos os nós são 1, aqueles que entram pra lista de 2 fazem com que seus vizinhos caiam para 0.
+
+Pode ser possível ter que fazer a mudança.
+
+*É importante salientar a semelhança desse problema com o problema do conjunto dominante (é esse problema com apenas as opções de 2 e 0) e, por sua vez, o problema da cobertura de conjuntos*
+*** GRASP
+# Como funciona, como melhorar o grasp com as alterações
+**** Heurística Cobertura de conjunto
+Podemos utilizar a semelhança com o problema de cobertura de conjunto para nos ajudar. A cada passo, adicionamos o elemento que possui o maio número de vizinhos descobertos a 2.
+
+**** Busca local
+Vizinhança 1: soluções que adicionam um 2 e propaga os 1 -> 0.
+Caso não seja encontrado alguém com melhoria > 2, testamos a segunda vizinhança
+Vizinhança 2: soluções que removem alguém de 2 pra 1 ou 0.
+
+# Buscas locais mais agressivas, promovendo dois vértices ou alterando 3 vértices
+
+*** Busca tabu
+Iniciamos com uma solução gerada por uma heurística (posso testar tanto a heurística acima quanto heurísticas genéricas para o problema de dominação).
+*** Geração de instâncias?
+# Conferir o artigo do [[http://vrp.atd-lab.inf.puc-rio.br/index.php/en/new-instances][CVRPLIB - New Instances]]
+** Referências
+A partir de [[citet:&ivanovic16_improved]]
+- Apresentado por [[citet:&stewart99_roman]]
+- Desenvolvimento teórico inicial citet:&revelle00_defendens
+- Algumas classes especiais de grafos podem ser resolvidas em tempo linear como provado por [[citet:&klobuvcar14_some]]
+- Mas de forma geral, o problema é np-difícil [[citet:&dreyer00_applications]] [[citet:&klobuvcar14_some ]] [[citet:&shang07_roman]]
+
+Provas de grafos:[[citet:&cockayne04_roman]]
+
+TODO :
+- [[citet:&henning03_defending]] A definição de weak
+- [[citet:&xing2006note]]
+- [[citet:&favaron09_roman]]
+- [[citet:&mobaraky2008bounds]] Bounds on roman domination numbers of graphs
+- [[citet:&roushini2011weak]]
+- [[citet:&haynes13_fundamentals]] dominação em geral
+- [[citet:&ivanovic19_variable]] VNS (antigo tabu)
+- [[citet:&ivanovic19_variable]] PLI para fraca
+- [[citet:&ivanovic19_variable]] algoritmo genético
+
+- [[citet:&filipovic2022solving]] heurística
+- [[citet:&cai2019integer]] instâncias
+
+Além dos estudos em teoria dos grafos mencionados acima, também destacamos duas formulações de *Programação Linear Inteira*. A primeira apresentada por [[citet:&revelle00_defendens]] é descrita por dois conjuntos de variáveis
+
+$$
+x_{i}=\left\{\begin{array}{ll}
+1, & f(i) \geqslant 1 \\
+0, & \text { otherwise }
+\end{array} \quad y_{i}= \begin{cases}1, & f(i)=2 \\
+0, & \text { otherwise. }\end{cases}\right.
+$$
+
+Assim, o problema pode ser formulado por
+
+\begin{align*}
+\min &\sum_{i \in V} x_{i}+\sum_{i \in V} y_{i} \\
+x_{i}+\sum_{j \in N_{i}} y_{j} &\geq 1, \  i \in V \\
+y_{i} &\leq x_{i}, \  i \in V \\
+x_{i}, y_{i} &\in\{0,1\}, \  i \in V
+\end{align*}
+
+Outra formulação, apresentada por [[citet:&burger13_binary]], utiliza as seguintes variáveis:
+
+$$
+x_{i}=\left\{\begin{array}{ll}
+1, & f(i)=1 \\
+0, & \text { otherwise }
+\end{array} \quad y_{i}= \begin{cases}1, & f(i)=2 \\
+0, & \text { otherwise. }\end{cases}\right.
+$$
+e o problema se torna
+\begin{align*}
+\min &\sum_{i \in V} x_{i}+2 \sum_{i \in V} y_{i} \\
+x_{i}+y_{i}+\sum_{j \in N_{i}} y_{j} &\geq 1, \  i \in V \\
+x_{i}+y_{i} &\leq 1, \  i \in V \\
+x_{i}, y_{i} &\in\{0,1\}, \  i \in V
+\end{align*}
+
+Além disso, [[citet:&ivanovic2016improved]] mostrou ser possível melhorar ambas as formulações permitindo que as variáveis $x$ sejam reais, o que, para segunda formulação, ainda possibilitou a retirada da penúltima restrição.

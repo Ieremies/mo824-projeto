@@ -1,0 +1,131 @@
+#+Title: Meta-heurística GRASP para o Problema de Dominação Romana
+#+Author: Ieremies Romero
+#+Options: toc:nil
+#+latex_header: \usepackage{geometry}
+#+latex_header: \usepackage[portuguese]{babel}
+#+latex_header: \usepackage{cleveref}
+#+latex_header: \usepackage[style=authoryear]{biblatex}
+#+latex_header: \addbibresource{/home/ieremies/arq/bib.bib}
+
+#     Resumo: objetivos do trabalho e informações sobre o problema, a metodologia de solução proposta e como ocorrerá a avaliação dos resultados.
+#+begin_abstract
+A Dominação Romana é um problema proposto por [[citet:&stewart99_roman]] em que desejamos defender o império romano dispondo de um certo número de legiões. Para isso, cada cidade deve ser assegurada de forma que ou ela possua uma legião alocada, ou seja, vizinha de outra que possua duas legiões. Assim, deseja-se minimizar a quantidade de legiões distribuídas sem abdicar da segurança do império.
+
+Esse projeto visa estudar o Problema de Dominação Romana utilizando a meta-heurística do GRASP (/greedy randomized adaptive search procedure/) apresentado por [[citet:&resende19_grasp]]. Desejamos entender como os parâmetros e variações da meta-heurística influenciam o tempo de execução e o valor das soluções produzidas e obter boas soluções em tempos computacionais razoáveis.
+
+Para isso, utilizaremos uma larga base de instâncias já apresentadas na literatura das quais coletaremos dados empíricos para realizar comparações relativas entre as diferentes configurações testadas.
+#+end_abstract
+
+* Introdução
+:PROPERTIES:
+:ID:       e8eb4d22-d7e7-49df-9234-653139e0091d
+:END:
+#     Introdução: descrição formal do problema, que deve incluir: formulação matemática, revisão bibliográfica do problema (e/ou problemas relacionados) e metodologias previamente utilizadas.
+** Motivação histórica
+Proposto inicialmente por citet:stewart99_roman, durante a Segunda Guerra Mundial, General Douglas MacArthur propôs uma estratégia de movimentação que consistia em avançar suas tropas de uma ilha para outra apenas quando ele poderia deixar para trás um número suficiente de tropas. Ele não foi o primeiro a utilizar dessa estratégia: segundo citet:stewart99_roman, referências históricas apontam que o Imperador Constantino, no quarto século A.C., aplicou estratégia similar para defender o Império Romano de invasões dos povos ditos "bárbaros".
+
+Para exemplificar o uso de tal estratégia, considere o mapa do Império Romano simplificado na Figura ref:fig:mapa. Nesse exemplo, o imperador possui 4 legiões para serem distribuídas pelo território e ele deseja fazê-lo de forma que todas as cidades sejam consideradas *seguras*. Uma região é dita segura, ou *coberta*, se há uma legião em seu território ou se está conectada a outra região com duas legiões.
+
+#+caption: Representação do mapa do Império Romano usada como ilustração do problema retirada de Stewart 1999.
+#+name: fig:mapa
+[[attachment:_20220602_105826screenshot.png]]
+
+** Modelo matemático
+Para um grafo $G = (V,E)$, dizemos que a *vizinhança aberta* $N(v)$ de um vértice $v$ é definida como o conjunto de vértices adjacentes a $v$ em $G$, ou seja,  $N(v) = \{u | (u,v) \in E\}$. Similarmente, dizemos que a *vizinhança fechada* $N[v]$ de um vértice $v$ é a vizinhança aberta incluindo o próprio $v$, ou seja, $N[v] = N(v) \cup \{v\}$. Para um conjunto de vértices $s$, a vizinhança aberta desse conjunto é a união das vizinhanças abertas de cada um dos seus vértices (o respectivo pode ser dito para a vizinhança fechada).
+
+Um *conjunto dominante* de um grafo $G$ é um subconjunto de vértices $D$ tal que a vizinhança fechada de $D$ é o próprio conjunto $V$. Por sua vez, o *número de dominação* de um grafo $G$, dito $\gamma(G)$, é a cardinalidade do menor conjunto dominante do grafo $G$.
+
+# TODO A *coloração* de um grafo $G$ é o ato de atribuir etiquetas (cores) aos elementos do grafo. Em geral, essa atribuição se torna interessante quando temos que respeitar um certo conjunto de restrições, como, talvez a mais clássica, coloração sem que vértices vizinhos tenham a mesma cor.
+
+Para o problema de dominação romana, podemos defini-lo num grafo $G = (V,E)$ simples, finito e não-direcionado, onde cada vértice representa uma cidade ou região do império e as arestas são as conexões entre elas. Diremos que uma *função de dominação romana* é uma função $f : V \to \{0,1,2\}$ na qual $f(v)$ indica a quantidade de legiões naquela região, de forma que, para qualquer $v$ tal que $f(v) = 0$, deve existir $u$ vizinho a $v$ cujo $f(u) =2$. Definimos o *número de dominação romana total* de um grafo $G$ como o menor valor $\sum_{v \in V} f(v)$ tal que $f$ é uma função de dominação romana do grafo $G$.
+
+** Revisão bibliográfica
+Após a descrição do problema por [[citet:&stewart99_roman]], [[citet:&revelle00_defendens]] apresentou o desenvolvimento teórico inicial. Além disso, [[citet:&cockayne04_roman]] apresentou alguns resultados importantíssimo de teoria de grafos sobre o problema, com limitantes e propriedades da função de dominação romana, os quais foram estendidos e aprimorados por [[citet:&xing2006note]], [[citet:&favaron09_roman]], [[citet:&mobaraky2008bounds]]. [[citet:&klobuvcar14_some]] demonstraram que algumas classes especiais de grafos podem ser resolvidas em tempo linear, mas, no caso geral, o problema é NP-difícil ([[citet:&dreyer00_applications]]; [[citet:&klobuvcar14_some]]; [[citet:&shang07_roman]]).
+
+# Outras metodologias
+[[citet:&ivanovic19_variable]] utilizaram *Variable Neightborhood Search* (VNS) no mesmo problema, obtendo resultados interessantes para as mesmas instâncias propostas por [[citet:&curro14_roman]] que usaremos nesse projeto. Essa meta-heurística parte da ideia de que soluções ótimas são encontradas "próximas" de boas soluções, assim utilizando busca local e algumas técnicas para escapar de mínimos locais e intensificar a procura.
+
+Já [[citet:&khandelwal21_roman]] utilizaram *algoritmos genéticos* no problema de dominação romana, uma ideia que toma de inspiração da evolução das espécies observadas na natureza. Partindo de um conjunto de soluções, realizamos os chamados "cruzamentos" das melhores para produzir novas gerações. A cada uma, induzimos "mutações" aleatórias que alteram certos pontos das soluções, espelhando a realidade.
+
+Além disso, [[citet:&filipovic2022solving]] também utilizaram a VNS e *programação por restrição* no problema, mas obtiveram melhores resultados com duas novas formulações inteiras que eles mesmo propuseram. Neste, também foram utilizadas as instâncias de [[citet:&curro14_roman]].
+
+* Metodologia
+:PROPERTIES:
+:ID:       3b7db790-7ebf-4d59-80f8-8cc3738a90d6
+:END:
+#     Metodologia: justificativa e descrição das técnicas de otimização a serem exploradas na solução do problema. Descrever as técnicas de otimização contextualizando-as ao problema de otimização combinatória proposto.
+
+Para esse problema utilizaremos a meta-heurística *GRASP* (/greedy randomized adaptive search procedure/), proposta por [[citet:&resende19_grasp]] para problemas de minimização. Esta consiste em alternamos, a cada iteração, entre: geração de novos candidatos e busca local para busca de novos mínimos. Na primeira, utilizamos uma heurística gulosa aleatorizada para construir uma solução viável. Na segunda, realizamos uma busca local partindo desta solução. Por fim, repetimos esse processo um certo número de vezes, guardando a melhor solução encontrada.
+
+#+caption: Algoritmo apresentado por Resende e Ribeiro 2019 para a fase construtiva do GRASP.
+#+name: algo:grasp
+[[attachment:_20220603_171154screenshot.png]]
+
+# TODO alterar esses parágrafos para serem mais precisos para o problema
+
+É importante salientar que, como demonstrado em citet:resende19_grasp, não é necessário fazer a etapa de "reparo" da solução se só incluirmos nela aqueles que não torna-la-ão inviável. Tais variáveis são chamadas *candidatas* e, a cada iteração da etapa de construção, montamos (ou atualizamos) a chamada lista de candidatas *CL*.
+
+Nesta etapa, a cada iteração analisamos cada elemento da lista CL e qual custo que sua inserção na solução irá causar. Em posse do maior e menor custos nesta lista, selecionamos aleatoriamente elementos que estão suficientemente próximos do menor custo, tais elementos compõem a chamada *lista restrita de candidatas* (RCL). A definição de suficientemente fica a cargo do parâmetro *$\alpha$* e é relativa ao intervalo de valores que obtivemos na análise da lista. Podemos repetir esse processo até que a lista de candidatos seja esgotada.
+
+#+caption: Algoritmo apresentado por Resende e Riberio 2019 para a busca local do GRASP.
+#+name: algo:grasp_local
+[[attachment:_20220603_171221screenshot.png]]
+
+Já na etapa de busca local, analisamos as vizinhanças da nossa solução procurando por melhorias locais até não ser mais possível. Para cada problema, podem existir diversas definições de vizinhança e mais de uma pode ser utilizada nessa fase.
+
+** Construtiva (heurística)
+# Uma descrição por cima da heurística
+É importante nesse momento perceber a similaridade do nosso problema com o *problema de cobertura mínima de vértices* de um grafo. Neste, almeja-se encontrar um conjunto de vértices $V'$ no grafo $G=(V,E)$ tal que a vizinhança fechada de $V'$ seja o próprio $V$.
+
+Assim, se para o nosso problema, atribuirmos a todos os elementos de $V'$ acima construído duas legiões e aos vértices $V \setminus V'$ nenhuma, temos uma solução viável. Além disso, [[citet:&Parekh1991_Analysis]] demonstra uma simples heurística para resolver o problema de cobertura cuja cardinalidade do conjunto resultante é menor que $n+1 - \sqrt{2m+1}$, sendo $n = |V|$ e $m = |E|$, portanto, o número de dominação romana total é até duas vezes esse valor.
+
+# TODO descrever a heurística
+A cada iteração, adicionamos o vértice de menor índice que possui a maior quantidade de vizinhos descobertos.
+
+#+begin_teo
+A heurística acima produz soluções de custo menor que $2(n+1 - \sqrt{2m+1})$.
+#+end_teo
+
+** Busca local
+Na etapa de busca local, como descrito anteriormente, partimos de uma solução viável e, analisando a(s) vizinhança(s) desta solução, tomamos "passos" em direção a melhorar nossa função objetivo. O desafio então jaz em decidir quem serão nossas vizinhanças já que qualidade da busca depende diretamente nelas.
+
+Algumas possibilidades de vizinhanças a serem estudadas são:
+- inserção de um novo elemento da CL na solução.
+- remoção de um elemento já presente na solução.
+- substituição de um elemento na solução por outro na CL.
+
+Além disso, estudaremos o uso de vizinhanças maiores que envolvem a remoção, inserção ou substituição de mais de um elemento simultaneamente.
+
+Além disso, estudaremos abordagens de como decidir qual "passo" a ser tomado: *best-improving* e *first-improving*. Na primeira, percorremos todos os vizinhos (soluções que podem ser obtidas a partir de uma das operações acima) e tomamos o passo na direção do vizinho que melhor afeta nossa função objetivo (no nosso caso, o de maior contribuição). Em contrapartida, a segunda nos propõe a tomar o primeiro "bom vizinho", ou seja, o primeiro vizinho encontrado que melhora a nossa solução.
+** Técnicas alternativas
+# Eu devia falar brevemente sobre algumas alterações que podemos fazer no grasp.
+
+Além da implementação padrão da meta-heurística, almejamos implementar algumas variações na sua abordagem, como apresentadas por [[citet:&resende19_grasp]]:
+- construção gulosa por amostra :: modificamos a ordem dos passos na heurística construtiva: da lista de candidatos, montamos a lista restrita com no máximo $p$ elementos aleatórios e deles escolhemos o melhor. Perceba que o parâmetro $p$, nesse caso, é determina o balanço entre as abordagens gulosa e aleatória.
+- POP :: /Proximate Optimality Principle/ propõem que, em alguns momentos da heurística construtiva, realizemos alguns passos de busca local, o que corrigiria algumas "imperfeições" criadas pela heurística.
+- Bias :: na versão padrão, usamos uma função de distribuição de probabilidade constante, onde cada elemento possui a mesma chance de ser escolhido de RCL. Nessa nova versão, alteramos essa função para candidatas como exponencial, logarítmica e linear. É importante ressaltar que todas essas funções citadas acima ainda mantém uma "preferência" pelos menores valores.
+
+# Path relinking
+* Avaliação dos resultados
+#     Avaliação dos Resultados: descrição dos experimentos computacionais propostos, das instâncias a serem adotadas e de como se pretende avaliar os resultados.
+# Experimentos
+Como nosso objetivo é a construção de boas soluções usando a meta-heurística GRASP para o problema de dominação romana, experimentaremos em um largo conjunto de instâncias os métodos apresentados aqui (e possivelmente outros). Para tal, experimentaremos com diferentes  parâmetros, como valores de $\alpha$, critério do passo de busca local (de "best" para "first") dentre outros parâmetros do algoritmo e suas variações.
+
+Além disso, cada instância terá um tempo limite de $10$ minutos.
+
+# Instâncias
+Para as instâncias desse projeto, usaremos aquelas originalmente apresentadas por [[cite:&curro14_roman]] divididas em $6$ diferentes classes de grafos simétricos:
+
+- planar :: cada uma das 17 instâncias mapeia cada vértice a uma coordenada no plano. Os vértices são ligados aos seus vizinhos baseado numa probabilidade que é maior quanto mais próximos no plano eles se encontram.
+- grade :: composta por grafos que, imerso no plano $\mathbb{R}^2$, formam azulejos regulares (/regular tiling/). É composta de 171 instâncias que variam de 3x3 a 30x20, com $600$ vértices.
+- rede :: os $4$ grafos que a compõe são formados adicionando arestas que conectam os vértices "mas próximos" na diagonal dos grafos de grade.
+- bipartido :: com um total de 81 instâncias, dimensões variando de $50$ a $400$ vértices, a densidade é aleatória controlada por um parâmetro $p$.
+- randômico :: contendo $72$ instâncias e dimensões de $50$ a $200$, cada par de vértice tem uma probabilidade de estarem ligados entre si por uma aresta.
+- recursivo :: as $7$ instâncias possuem de $7$ a $3283$ vértices.
+
+# Como avaliar
+Com os resultados em mãos, ou seja, valor da função objetivo e tempo de execução para diferentes configurações, podemos comparar os valores das soluções encontradas com os valores ótimos sabidos para cada instância bem como os resultados obtidos por [[citet:&filipovic2022solving]] e [[citet:&ivanovic16_improved]] sob as mesmas instâncias.
+* Referências bibliográficas
+#     Referências Bibliográficas: conjunto de livros e artigos de referência para a contextualização do trabalho frente à literatura.
+bibliographystyle:unsrt
+bibliography:proposta.bib

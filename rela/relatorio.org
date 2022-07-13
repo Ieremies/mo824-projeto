@@ -1,0 +1,12 @@
+
+* Referências em Operacional
+[cite:@filipovic2022_SolvingSignedRomana] Dominação com sinal (exato e heurística).
+[cite:@ivanovic2019_VariableNeighborhoodSearch] VNS
+[cite:@khandelwal2021_RomanDominationGraphs] Genético
+* Ideias da implementação
+A sol é o conjunto de vértices cujo f(v) = 2. Os f(v) = 0 seus vizinhos e f(v) = 1 o restante.
+* Reunião
+Criar um executável do programa -> .jar
+Argumento da função main é o args : um vetor de char
+
+Um vetor contando quantos nós estão protegendo ele.
