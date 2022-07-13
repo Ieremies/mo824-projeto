@@ -25,5 +25,10 @@ public:
     cost = s.cost;
   }
 
-  void print() { cout << "Solution\t cost = " << cost << endl; }
+  void print() {
+    cout << "Solution\t cost = " << cost << " ";
+    // for (auto i : variables)
+    //   cout << i << " ";
+    cout << endl;
+  }
 };

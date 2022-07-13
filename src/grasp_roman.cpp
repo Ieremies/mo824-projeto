@@ -10,14 +10,10 @@ public:
   Solution sol;
   Roman obj_function;
   double alpha;
-  int interations;
   int best;
 
-  Grasp(double alpha, int interations, string file_name)
-      : obj_function(file_name) {
-    // BUG this se refere a essa instância, correto?
+  Grasp(double alpha, string file_name) : obj_function(file_name) {
     this->alpha = alpha;
-    this->interations = interations;
   }
 
   vector<int> make_cl() {
@@ -31,7 +27,7 @@ public:
   void constructive_heuristic() {
     vector<int> cl = make_cl();
     vector<int> rcl;
-    int cost = INT32_MAX;
+    int cost = sol.cost + 1;
 
     // Enquanto há melhorias
     while (cost > sol.cost) {
@@ -48,12 +44,16 @@ public:
           max_cost = delta_cost;
       }
 
+      if (min_cost >= 0)
+        break;
+
       for (int c : cl) {
         delta_cost = obj_function.insertion_cost(c, sol);
         if (delta_cost <= min_cost + alpha * (max_cost - min_cost))
           rcl.push_back(c);
       }
 
+      // cout << rcl.size() << endl;
       if (rcl.empty())
         break;
 
@@ -191,15 +191,25 @@ public:
   Solution solve() {
     auto start = chrono::high_resolution_clock::now();
     Solution best_sol = Solution(obj_function.size); // solução vazia
-    for (int i = 0; i < interations; i++) {
+
+    for (int i = 0;; i++) {
       sol = Solution(obj_function.size);
       constructive_heuristic();
       local_search();
+
       if (best_sol.cost > sol.cost) {
         best_sol = Solution(sol);
-        // TODO break in optimal
-        cout << "Iter. " << i << "\t Best ";
+        cout << i << " \t Best ";
         sol.print();
+        if (best_sol.cost == obj_function.optimal)
+          break;
+      }
+
+      auto stop = chrono::high_resolution_clock::now();
+      auto duration = chrono::duration_cast<chrono::microseconds>(stop - start);
+      if (duration.count() > 600000000) {
+        cout << "time limit" << endl;
+        break;
       }
     }
     auto stop = chrono::high_resolution_clock::now();
@@ -210,8 +220,8 @@ public:
 };
 
 int main(int argc, char *argv[]) {
-  cout << argv[3] << endl;
-  Grasp grasp = Grasp(stod(argv[1]), stoi(argv[2]), argv[3]);
-  grasp.best = stoi(argv[4]);
+  Grasp grasp = Grasp(stod(argv[1]), argv[2]);
+  cout << argv[2] << " \t\t" << grasp.obj_function.optimal << endl;
+  grasp.best = stoi(argv[3]);
   Solution sol = grasp.solve();
 }

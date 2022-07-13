@@ -7,12 +7,14 @@ class Roman {
 public:
   vector<vector<bool>> adj;
   int size;
+  int optimal;
 
   Roman(string file_name) { size = read_input(file_name); }
 
   int read_input(string file_name) {
     int edges, a, b;
     ifstream file(file_name);
+    file >> optimal;
     file >> size;
     file >> edges;
 
@@ -73,38 +75,33 @@ public:
     return soma;
   }
 
-  void insert(int in, Solution *sol) {
-    sol->cost += 2 - sol->variables[in];
-    sol->variables[in] = 2;
-
-    for (int i = 0; i < size; i++) {
-      if (adj[in][i]) {
-        sol->protection[i]++;
-        if (sol->variables[i] == 1 and sol->protection[i] > 0) {
+  void recheck(Solution *sol) {
+    sol->protection = vector<int>(size, 0);
+    for (int i = 0; i < size; i++)
+      for (int j = i + 1; j < size; j++)
+        if (adj[i][j]) {
+          if (sol->variables[i] == 2)
+            sol->protection[j]++;
+          if (sol->variables[j] == 2)
+            sol->protection[i]++;
+        }
+    for (int i = 0; i < size; i++)
+      if (sol->variables[i] != 2) {
+        if (sol->protection[i] > 0)
           sol->variables[i] = 0;
-          sol->cost--;
-        }
-      }
-    }
-  }
-
-  void remove(int out, Solution *sol) {
-    if (sol->protection[out] > 0) {
-      sol->cost -= 2;
-      sol->variables[out] = 0;
-    } else {
-      sol->cost -= 1;
-      sol->variables[out] = 1;
-    }
-
-    for (int i = 0; i < size; i++) {
-      if (adj[out][i]) {
-        sol->protection[i]--;
-        if (sol->variables[i] == 0 and sol->protection[i] == 0) {
+        else
           sol->variables[i] = 1;
-          sol->cost++;
-        }
       }
-    }
+    sol->cost = 0;
+    for (auto i : sol->variables)
+      sol->cost += i;
+  }
+  void insert(int in, Solution *sol) {
+    sol->variables[in] = 2;
+    recheck(sol);
+  }
+  void remove(int out, Solution *sol) {
+    sol->variables[out] = 0;
+    recheck(sol);
   }
 };
