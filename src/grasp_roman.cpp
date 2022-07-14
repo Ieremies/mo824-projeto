@@ -4,13 +4,14 @@
 #include "roman.cpp"
 #include <cstdint>
 #include <cstdio>
+#include <time.h>
 
 class Grasp {
 public:
   Solution sol;
   Roman obj_function;
   double alpha;
-  int best;
+  int best, heuristic, p;
 
   Grasp(double alpha, string file_name) : obj_function(file_name) {
     this->alpha = alpha;
@@ -25,6 +26,39 @@ public:
   }
 
   void constructive_heuristic() {
+    if (heuristic == 1)
+      constructive_heuristic_random_plus();
+    else
+      constructive_heuristic_standart();
+  }
+  void constructive_heuristic_random_plus() {
+    vector<int> cl = make_cl();
+    vector<int> rcl;
+    int cost = sol.cost + 1, in_cand;
+
+    // Enquanto há melhorias
+    while (cost > sol.cost) {
+      int min_cost = INT32_MAX;
+      int delta_cost;
+      cost = sol.cost;
+
+      for (int i = 0; i < cl.size() and i < p; i++)
+        rcl.push_back(cl[rand() % cl.size()]);
+
+      for (int c : rcl) {
+        delta_cost = obj_function.insertion_cost(c, sol);
+        if (delta_cost < min_cost) {
+          min_cost = delta_cost;
+          in_cand = c;
+        }
+      }
+
+      cl.erase(remove(cl.begin(), cl.end(), in_cand), cl.end());
+      obj_function.insert(in_cand, &sol);
+      rcl.clear();
+    }
+  }
+  void constructive_heuristic_standart() {
     vector<int> cl = make_cl();
     vector<int> rcl;
     int cost = sol.cost + 1;
@@ -133,6 +167,7 @@ public:
           cl.erase(remove(cl.begin(), cl.end(), cand_in), cl.end());
         }
       }
+      // cout << "local" << endl;
     } while (min_delta_cost < 0);
   }
   void local_search_best() {
@@ -162,8 +197,8 @@ public:
       }
 
       // TODO exchange
-      for (int c : cl) {
-        for (int i = 0; i < obj_function.size; i++) {
+      for (int c : cl)
+        for (int i = 0; i < obj_function.size; i++)
           if (sol.variables[i] == 2) {
             delta_cost = obj_function.exchange_cost(c, i, sol);
             if (delta_cost < min_delta_cost) {
@@ -172,8 +207,6 @@ public:
               cand_out = i;
             }
           }
-        }
-      }
 
       if (min_delta_cost < 0) {
         if (cand_out != -1) {
@@ -214,14 +247,18 @@ public:
     }
     auto stop = chrono::high_resolution_clock::now();
     auto duration = chrono::duration_cast<chrono::microseconds>(stop - start);
-    cout << "Time:\t" << duration.count() << endl;
+    cout << "Time:\t" << duration.count() / 1000000.0 << endl;
     return best_sol;
   }
 };
 
 int main(int argc, char *argv[]) {
+  srand(time(NULL));
   Grasp grasp = Grasp(stod(argv[1]), argv[2]);
-  cout << argv[2] << " \t\t" << grasp.obj_function.optimal << endl;
   grasp.best = stoi(argv[3]);
+  grasp.heuristic = stoi(argv[4]);
+  if (argc >= 5)
+    grasp.p = stoi(argv[5]);
+  cout << argv[2] << " \t\t" << grasp.obj_function.optimal << endl;
   Solution sol = grasp.solve();
 }
