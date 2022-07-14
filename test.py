@@ -12,22 +12,15 @@ alphas = ["0.20", "0.10", "0.05"]
 local_search = ["0", "1"]
 heuristics = ["0 0", "1 10", "1 20", "1 40"]
 
-param = [alphas, instances, local_search, heuristics]
+param = [alphas, instances, local_search[:1], heuristics[:1]]
 comb = product(*param)
 
-i = 0
-total = 1
-for l in param:
-    total *= len(l)
-
 def exe (args):
-    with open("out.csv", "w") as fd:
-        args = ["./src/grasp_roman"] + list(args)
-        print(args)
-        stream = popen(" ".join(args))
-        fd.write("; ".join(args))
-        fd.write(stream.read())
-        print(i, total)
+    args = ["./src/grasp_roman"] + list(args)
+    stream = popen(" ".join(args))
+    print("; ".join(args), end="")
+    print(stream.read(), end="")
+
 
 if __name__ == "__main__":
     with Pool(int(argv[1])) as p:
