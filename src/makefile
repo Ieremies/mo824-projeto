@@ -4,7 +4,7 @@ CC = g++
 # compiler flags:
 #  -g     - this flag adds debugging information to the executable file
 #  -Wall  - this flag is used to turn on most compiler warnings
-CFLAGS  = -g -Wall -Ofast
+CFLAGS  = -g -Wall -O3
 
 all: grasp_roman
 

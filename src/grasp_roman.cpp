@@ -167,7 +167,7 @@ public:
           cl.erase(remove(cl.begin(), cl.end(), cand_in), cl.end());
         }
       }
-      // cout << "local" << endl;
+
     } while (min_delta_cost < 0);
   }
   void local_search_best() {
@@ -232,8 +232,8 @@ public:
 
       if (best_sol.cost > sol.cost) {
         best_sol = Solution(sol);
-        cout << i << " \t Best ";
-        sol.print();
+        // cout << i << " \t Best ";
+        // sol.print();
         if (best_sol.cost == obj_function.optimal)
           break;
       }
@@ -241,13 +241,13 @@ public:
       auto stop = chrono::high_resolution_clock::now();
       auto duration = chrono::duration_cast<chrono::microseconds>(stop - start);
       if (duration.count() > 600000000) {
-        cout << "time limit" << endl;
         break;
       }
     }
     auto stop = chrono::high_resolution_clock::now();
     auto duration = chrono::duration_cast<chrono::microseconds>(stop - start);
-    cout << "Time:\t" << duration.count() / 1000000.0 << endl;
+    cout << best_sol.cost << "; " << duration.count() / 1000000.0 << ";"
+         << endl;
     return best_sol;
   }
 };
@@ -259,6 +259,5 @@ int main(int argc, char *argv[]) {
   grasp.heuristic = stoi(argv[4]);
   if (argc >= 5)
     grasp.p = stoi(argv[5]);
-  cout << argv[2] << " \t\t" << grasp.obj_function.optimal << endl;
   Solution sol = grasp.solve();
 }
