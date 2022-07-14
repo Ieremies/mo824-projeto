@@ -253,7 +253,7 @@ public:
 };
 
 int main(int argc, char *argv[]) {
-  srand(time(NULL));
+  srand(0);
   Grasp grasp = Grasp(stod(argv[1]), argv[2]);
   grasp.best = stoi(argv[3]);
   grasp.heuristic = stoi(argv[4]);

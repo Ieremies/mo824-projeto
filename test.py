@@ -17,7 +17,7 @@ def exe (args):
     args = ["./src/grasp_roman"] + list(args)
     stream = popen(" ".join(args))
     print("; ".join(args),end="")
-    print(stream.read())
+    print(stream.read(), end="")
 
 comb = product(alphas, instances, local_search, heuristics)
 if __name__ == "__main__":
