@@ -26,6 +26,6 @@ def exe (args):
 
 if __name__ == "__main__":
     with Pool(int(argv[1])) as p:
-        print(p.map(exe, product(alphas, instances, local_search[:1], heuristics[:1], target)))
-        print(p.map(exe, product(alphas[:1], instances, local_search[1:], heuristics[:1], target)))
-        print(p.map(exe, product(alphas[:1], instances, local_search[:1], heuristics[1:], target)))
+        p.map(exe, product(alphas, instances, local_search[:1], heuristics[:1], target))
+        p.map(exe, product(alphas[:1], instances, local_search[1:], heuristics[:1], target))
+        p.map(exe, product(alphas[:1], instances, local_search[:1], heuristics[1:], target))
