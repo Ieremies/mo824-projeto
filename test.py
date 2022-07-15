@@ -10,14 +10,14 @@ from sys import argv
 instances = ["./inst/" + f for f in listdir("./inst/") if isfile(join("./inst/", f))]
 alphas = ["0.20", "0.10", "0.05"]
 local_search = ["0", "1"]
-heuristics = ["0 0", "1 10", "1 20", "1 40"]
+heuristics = ["0 0 ", "1 10 ", "1 20", "1 40"]
 
 param = [alphas, instances, local_search[:1], heuristics[:1]]
 comb = product(*param)
 
 def exe (args):
     args = ["./src/grasp_roman"] + list(args)
-    stream = popen(" ".join(args))
+    stream = popen(" ".join(args) + "; ")
     print("; ".join(args), end="")
     print(stream.read(), end="")
 

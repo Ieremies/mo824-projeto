@@ -28,6 +28,8 @@ public:
   void constructive_heuristic() {
     if (heuristic == 1)
       constructive_heuristic_random_plus();
+    if (heuristic == 2)
+      constructive_heuristic_pop();
     else
       constructive_heuristic_standart();
   }
@@ -42,7 +44,7 @@ public:
       int delta_cost;
       cost = sol.cost;
 
-      for (int i = 0; i < cl.size() and i < p; i++)
+      for (int i = 0; i < (int)cl.size() and i < p; i++)
         rcl.push_back(cl[rand() % cl.size()]);
 
       for (int c : rcl) {
@@ -68,7 +70,59 @@ public:
       int max_cost = INT32_MIN, min_cost = INT32_MAX;
       int delta_cost;
       cost = sol.cost;
-      // update_cl??
+
+      for (int c : cl) {
+        delta_cost = obj_function.insertion_cost(c, sol);
+        if (delta_cost < min_cost)
+          min_cost = delta_cost;
+        if (delta_cost > max_cost)
+          max_cost = delta_cost;
+      }
+
+      if (min_cost >= 0)
+        break;
+
+      for (int c : cl) {
+        delta_cost = obj_function.insertion_cost(c, sol);
+        if (delta_cost <= min_cost + alpha * (max_cost - min_cost))
+          rcl.push_back(c);
+      }
+
+      // cout << rcl.size() << endl;
+      if (rcl.empty())
+        break;
+
+      int rnd_index = rand() % rcl.size();
+      int in_cand = rcl[rnd_index];
+      cl.erase(remove(cl.begin(), cl.end(), in_cand), cl.end());
+      obj_function.insert(in_cand, &sol);
+      rcl.clear();
+    }
+  }
+
+  void constructive_heuristic_pop() {
+    vector<int> cl = make_cl();
+    vector<int> rcl;
+    int cost = sol.cost + 1;
+
+    // POP
+    int size = cl.size();
+    int i = 0;
+    int pop = size / p;
+
+    // Enquanto há melhorias
+    while (cost > sol.cost) {
+      // POP
+      i++;
+      if (i % pop == 0) {
+        local_search();
+        cout << "POP" << endl;
+        cl = make_cl();
+      }
+
+      int max_cost = INT32_MIN, min_cost = INT32_MAX;
+      int delta_cost;
+      cost = sol.cost;
 
       for (int c : cl) {
         delta_cost = obj_function.insertion_cost(c, sol);
@@ -112,6 +166,7 @@ public:
     do {
       min_delta_cost = 0;
 
+      // Inserção de 1 elemento
       for (int c : cl) {
         delta_cost = obj_function.insertion_cost(c, sol);
         if (delta_cost < min_delta_cost) {
@@ -127,6 +182,7 @@ public:
         continue;
       }
 
+      // Remoção de 1 elemento
       for (int c : cl) {
         delta_cost = obj_function.removal_cost(c, sol);
         if (delta_cost < min_delta_cost) {
@@ -143,8 +199,9 @@ public:
         continue;
       }
 
-      for (int c : cl) {
-        for (int i = 0; i < obj_function.size; i++) {
+      // Swap de dois elementos
+      for (int c : cl)
+        for (int i = 0; i < obj_function.size; i++)
           if (sol.variables[i] == 2) {
             delta_cost = obj_function.exchange_cost(c, i, sol);
             if (delta_cost < min_delta_cost) {
@@ -154,9 +211,6 @@ public:
               break;
             }
           }
-        }
-      }
-
       if (min_delta_cost < 0) {
         if (cand_out != -1) {
           obj_function.remove(cand_out, &sol);
@@ -172,7 +226,7 @@ public:
   }
   void local_search_best() {
     int min_delta_cost, delta_cost;
-    int cand_in = -1, cand_out = -1;
+    int cand_in = -1, cand_in2 = -1, cand_out = -1;
     vector<int> cl = make_cl();
 
     do {
@@ -216,6 +270,10 @@ public:
         } else {
           obj_function.insert(cand_in, &sol);
           cl.erase(remove(cl.begin(), cl.end(), cand_in), cl.end());
+          if (cand_in2 != -1 and cand_in2 != cand_in) {
+            obj_function.insert(cand_in2, &sol);
+            cl.erase(remove(cl.begin(), cl.end(), cand_in2), cl.end());
+          }
         }
       }
     } while (min_delta_cost < 0);

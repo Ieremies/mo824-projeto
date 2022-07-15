@@ -68,7 +68,6 @@ public:
     if (sol.variables[out] != 2)
       return insertion_cost(in, sol);
 
-    // TODO apesar de não estar errado, calcula os dois separadamente.
     int soma = 0;
     soma += insertion_cost(in, sol);
     soma += removal_cost(out, sol);
