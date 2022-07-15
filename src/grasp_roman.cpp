@@ -317,7 +317,5 @@ int main(int argc, char *argv[]) {
   grasp.heuristic = stoi(argv[4]);
   if (argc >= 5)
     grasp.p = stoi(argv[5]);
-  if (argc >= 6)
-    grasp.obj_function.optimal = stoi(argv[6]);
   Solution sol = grasp.solve();
 }
