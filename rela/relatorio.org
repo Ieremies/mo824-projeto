@@ -2,7 +2,6 @@
 #+Author: Ieremies Romero
 #+Options: toc:nil
 #+bibliography: /home/ieremies/arq/bib.bib
-
 #+latex_header: \usepackage{geometry}
 #+latex_header: \usepackage[portuguese]{babel}
 #+latex_header: \usepackage{cleveref}
@@ -40,8 +39,48 @@ Um *conjunto dominante* de um grafo $G$ é um subconjunto de vértices $D$ tal q
 
 Para o problema de dominação romana, podemos defini-lo em um grafo $G = (V,E)$ simples, finito e não-direcionado, onde cada vértice representa uma cidade ou região do império e as arestas são as conexões entre elas. Diremos que uma *função de dominação romana* é uma função $f : V \to \{0,1,2\}$ na qual $f(v)$ indica a quantidade de legiões naquela região, de forma que, para qualquer $v$ tal que $f(v) = 0$, deve existir $u$ vizinho a $v$ cujo $f(u) =2$. Definimos o *número de dominação romana total* de um grafo $G$ como o menor valor $\sum_{v \in V} f(v)$ tal que $f$ é uma função de dominação romana do grafo $G$.
 
-# TODO Incluir o modelo matemático utilizado por Ivanovic VNS
+[cite:@ivanovic2016_ImprovedMixedInteger] apresenta duas formulações de Programação Linear Inteira para o problema. A primeira, envolve utilizar as variáveis binárias
 
+$$
+x_{i}=\left\{\begin{array}{ll}
+1, & f(i) \geqslant 1 \\
+0, & \text { caso contrário }
+\end{array} \quad y_{i}= \begin{cases}1, & f(i)=2 \\
+0, & \text { caso contrário. }\end{cases}\right.
+$$
+Assim, se há duas legiões em uma cidade $i$, $x_{i} = 1$ e $y_{i} = 1$. A primeira formulação pode ser descrita por
+$$
+\begin{gathered}
+\min \sum_{i \in V} x_{i}+\sum_{i \in V} y_{i} \\
+x_{i}+\sum_{j \in N_{i}} y_{j} \geqslant 1, \quad i \in V \\
+y_{i} \leqslant x_{i}, \quad i \in V \\
+x_{i}, y_{i} \in\{0,1\}, \quad i \in V
+\end{gathered}
+$$
+
+Além disso, [cite:@ivanovic2016_ImprovedMixedInteger] demonstra que é possível usar a variável $x'_{i}$, onde
+$x_{i}= \begin{cases}0, & x'_{i} \in[0,1) \\ 1, & x'_{i} \in[1,+\infty)\end{cases}$
+para o mesmo conjunto de restrições, relaxando assim esta formulação.
+
+A segunda formulação apresentada utiliza as seguintes variáveis binárias
+$$
+x_{i}=\left\{\begin{array}{ll}
+1, & f(i)=1 \\
+0, & \text { otherwise }
+\end{array} \quad y_{i}= \begin{cases}1, & f(i)=2 \\
+0, & \text { otherwise. }\end{cases}\right.
+$$
+Assim, se há duas legiões em uma cidade $i$, $x_{i} = 0$ e $y_{i} = 1$. Esta formulação pode ser descrita por
+$$
+\begin{gathered}
+\min \sum_{i \in V} x_{i}+2 \sum_{i \in V} y_{i} \\
+x_{i}+y_{i}+\sum_{j \in N_{i}} y_{j} \geqslant 1, \quad i \in V \\
+x_{i}+y_{i} \leqslant 1, \quad i \in V \\
+x_{i}, y_{i} \in\{0,1\}, \quad i \in V
+\end{gathered}
+$$
+
+[cite:@ivanovic2016_ImprovedMixedInteger] mais uma vez aplica a relaxação da variável $x'_{i}$ e ainda demonstra que, neste caso, é possível remover as restrições do tipo $x_{i} + y_{i} \leq 1$.
 ** Revisão bibliográfica
 # Após a descrição do problema por [cite:@stewart1999_DefendRomanEmpire], [cite:@revelle2000_DefendensImperiumRomanum]  apresentaram o desenvolvimento teórico inicial. Além disso, [cite:@2004_RomanDominationGraphs] apresentou alguns resultados de teoria de grafos sobre o problema, com limitantes e propriedades da função de dominação romana, os quais foram estendidos e aprimorados por [cite:@2006_NoteRomanDomination], [[citet:&favaron09_roman]], [[citet:&mobaraky2008bounds]]. [[citet:&klobuvcar14_some]] demonstraram que algumas classes especiais de grafos podem ser resolvidas em tempo linear, mas, no caso geral, o problema é NP-difícil ([[citet:&dreyer00_applications]]; [[citet:&klobuvcar14_some]]; [[citet:&shang07_roman]]).
 

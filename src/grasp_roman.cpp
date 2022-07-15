@@ -4,6 +4,7 @@
 #include "roman.cpp"
 #include <cstdint>
 #include <cstdio>
+#include <ctime>
 #include <time.h>
 
 class Grasp {
@@ -310,11 +311,13 @@ public:
 };
 
 int main(int argc, char *argv[]) {
-  srand(0);
+  srand(time(NULL));
   Grasp grasp = Grasp(stod(argv[1]), argv[2]);
   grasp.best = stoi(argv[3]);
   grasp.heuristic = stoi(argv[4]);
   if (argc >= 5)
     grasp.p = stoi(argv[5]);
+  if (argc >= 6)
+    grasp.obj_function.optimal = stoi(argv[6]);
   Solution sol = grasp.solve();
 }
