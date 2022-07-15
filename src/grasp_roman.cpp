@@ -116,7 +116,6 @@ public:
       i++;
       if (i % pop == 0) {
         local_search();
-        cout << "POP" << endl;
         cl = make_cl();
       }
 

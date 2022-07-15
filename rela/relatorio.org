@@ -2,6 +2,7 @@
 #+Author: Ieremies Romero
 #+Options: toc:nil
 #+bibliography: /home/ieremies/arq/bib.bib
+
 #+latex_header: \usepackage{geometry}
 #+latex_header: \usepackage[portuguese]{babel}
 #+latex_header: \usepackage{cleveref}
@@ -22,6 +23,8 @@ RESULTADOS
 #   descrição formal do problema, que deve incluir: formulação matemática, revisão bibliográfica do problema (e/ou problemas relacionados) e metodologias previamente utilizadas.
 ** Motivação histórica
 Durante a Segunda Guerra Mundial, General Douglas MacArthur propôs uma estratégia de movimentação que consistia em avançar suas tropas de uma ilha para outra apenas quando ele poderia deixar para trás um número suficiente de tropas. Ele não foi o primeiro a utilizar dessa estratégia: segundo [cite:@stewart1999_DefendRomanEmpire], referências históricas apontam que o Imperador Constantino, no quarto século A.C., aplicou estratégia similar para defender o Império Romano de invasões dos povos ditos "bárbaros".
+
+
 
 Para exemplificar o uso de tal estratégia, considere o mapa do Império Romano simplificado na Figura [[fig:mapa]]. Nesse exemplo, o imperador possui 4 legiões para serem distribuídas pelo território e ele deseja fazê-lo de forma que todas as cidades sejam consideradas *seguras*. Uma região é dita segura, ou *coberta*, se há uma legião em seu território ou se está conectada a outra região com duas legiões.
 
